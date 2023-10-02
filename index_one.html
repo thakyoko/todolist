@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>To-Do List</title>
+    <style>
+        /* สไตล์สำหรับ To-Do List */
+        h1 {
+            text-align: center;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 10px;
+            padding: 5px;
+            border: 1px solid #ccc;
+        }
+
+        input[type="text"] {
+            width: 60%;
+            padding: 10px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+        }
+
+        /* สไตล์สำหรับ Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* CSS สำหรับปุ่มแต่ละประเภท */
+        button.edit-button {
+            background-color: #5BC0DE;
+            /* สีเขียวเข้มอ่อน */
+            /* สีเขียว */
+            color: white;
+            padding: 5px 10px;
+            margin-right: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        button.delete-button {
+            background-color: #CC4D4B;
+            /* สีแดงเข้มอ่อน */
+            /* สีแดง */
+            color: white;
+            padding: 5px 10px;
+            margin-right: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        button.toggle-button {
+            padding: 5px 10px;
+            margin-right: 5px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            background-color: #5CB85C;
+            /* สีเขียว (ค่าเริ่มต้น) */
+        }
+
+        button.toggle-button[data-completed="false"] {
+            background-color: #EFA53E;
+            /* สีส้ม (สำหรับ false) */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>To-Do List</h1>
+    <input type="text" id="taskInput" placeholder="Add a new task">
+    <button onclick="addTask()">Add Task</button>
+    <ul id="taskList"></ul>
+
+    <!-- Modal สำหรับแก้ไขรายการงาน -->
+    <div id="myModal" class="modal">
+        <div class="modal-content" id="modal-content">
+            <h2>Edit Task</h2>
+            <input type="text" id="editedText" placeholder="Edit task text"><br>
+            <textarea id="editedDescription" rows="10" cols="100" placeholder="Edit task description"></textarea><br>
+            <input type="text" id="editedDateTime" placeholder="Edit task date and time">
+            <br>
+            <button id="updateButton">Update</button>
+            <button onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        const tableStructure = [{
+                text: 'Task',
+                name: 'text'
+            },
+            {
+                text: 'Description',
+                name: 'description'
+            },
+            {
+                text: 'Date and Time',
+                name: 'dateTime'
+            },
+            {
+                text: 'Actions',
+                name: 'completed'
+            }
+        ];
+
+        const jsonData = [{
+                text: 'Task 1',
+                description: 'Description 1',
+                dateTime: '2023-10-10',
+                completed: true
+            },
+            {
+                text: 'Task 2',
+                description: 'Description 1',
+                dateTime: '2023-10-10',
+                completed: false
+            }
+        ];
+
+        function createTable(data, structure) {
+            let tableHtml = '<table border="1">';
+
+            // สร้างหัวข้อ
+            tableHtml += '<thead><tr>';
+            structure.forEach(column => {
+                tableHtml += `<th>${column.text}</th>`;
+            });
+            tableHtml += '</tr></thead>';
+
+            // สร้างข้อมูลในตาราง
+            tableHtml += '<tbody>';
+            data.forEach((row, index) => {
+                tableHtml += '<tr>';
+                structure.forEach(column => {
+                    if (column.name === 'completed') {
+                        const isCompleted = row[column.name];
+                        tableHtml += '<td>';
+                        tableHtml += `<button class="edit-button" onclick="editTask(${index})">Edit</button>`;
+                        tableHtml += `<button class="delete-button" onclick="confirmDelete(${index})">Delete</button>`;
+                        tableHtml += `<button class="toggle-button" onclick="toggleTask(${index})" data-completed="${isCompleted ? 'true' : 'false'}" >${isCompleted ? 'Completed' : 'Uncompleted'}</button>`;
+                        tableHtml += '</td>';
+                    } else {
+                        tableHtml += `<td>${row[column.name]}</td>`;
+                    }
+                });
+                tableHtml += '</tr>';
+            });
+            tableHtml += '</tbody></table>';
+
+            return tableHtml;
+        }
+
+        function loadTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+
+            const tableHtml = createTable(tasks, tableStructure);
+
+            ///  alert(tableHtml);
+            // นำ HTML ที่สร้างมาแสดงในส่วนที่คุณต้องการ
+            //   const tableContainer = document.getElementById('tableContainer');
+            taskList.innerHTML = tableHtml;
+        }
+        // ฟังก์ชันสำหรับรับวันที่และเวลาปัจจุบัน
+        function getCurrentDateTime() {
+            const now = new Date();
+            const date = now.toLocaleDateString();
+            const time = now.toLocaleTimeString();
+            return `${date} เวลา ${time}`;
+        }
+
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const taskText = taskInput.value.trim();
+            if (taskText !== '') {
+                const dateTime = getCurrentDateTime();
+                const taskDescription = '';
+                const taskDateTime = '';
+                const newTask = {
+                    text: taskText,
+                    description: taskDescription,
+                    dateTime: dateTime
+                };
+
+                tasks.push(newTask);
+
+                saveTasks();
+                taskInput.value = '';
+                loadTasks();
+            }
+        }
+
+        // แสดง Modal สำหรับแก้ไขรายการงาน
+        function editTask(index) {
+            let task = tasks[index];
+
+            const modal = document.getElementById('myModal');
+            const modalContent = document.getElementById('modal-content');
+            const editedText = document.getElementById('editedText');
+            const editedDescription = document.getElementById('editedDescription');
+            const editedDateTime = document.getElementById('editedDateTime');
+
+            const dateTime = getCurrentDateTime();
+            // กำหนดข้อมูลเดิมใน input fields
+            editedText.value = task.text || '';
+            editedDescription.value = task.description || '';
+            editedDateTime.value = dateTime;
+
+            // แสดง Modal
+            modal.style.display = 'block';
+
+            // เมื่อผู้ใช้คลิกปุ่ม "Update" ให้เรียกใช้ updateTask()
+            document.getElementById('updateButton').onclick = function() {
+                const newText = editedText.value.trim();
+                if (newText !== '') {
+                    task.text = newText;
+                    task.description = editedDescription.value;
+                    task.dateTime = editedDateTime.value;
+                    saveTasks();
+                    loadTasks();
+                    closeModal();
+                }
+            };
+        }
+
+
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            saveTasks();
+            loadTasks();
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('myModal');
+            modal.style.display = 'none';
+        }
+
+        function toggleTask(index) {
+            tasks[index].completed = !tasks[index].completed;
+            saveTasks();
+            loadTasks();
+        }
+
+        function confirmDelete(index) {
+            if (confirm('Are you sure you want to delete this task? ' + tasks[index].text)) {
+                deleteTask(index);
+            }
+        }
+
+        loadTasks();
+    </script>
+</body>
+
+</html>
