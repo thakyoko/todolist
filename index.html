@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="version" content="1.0"> <!-- เพิ่ม meta tag เพื่อระบุเวอร์ชัน -->
+	<title>ToDo List</title>
+	<link rel="stylesheet" href="styles.css"> <!-- เรียกใช้ styles.css เท่านั้น -->
+</head>
+
+<body>
+	<div class="container">
+		<h1>ToDo List</h1>
+		<input type="text" id="task" placeholder="เพิ่มงานใหม่">
+		<textarea id="description" placeholder="เพิ่มคำอธิบาย"></textarea>
+		<button class="button" onclick="addTask()">เพิ่ม</button>
+		<div class="tasks" id="taskList"></div>
+	</div>
+
+	<footer></footer>
+	
+	<script src="script.js"></script> <!-- เรียกใช้ script.js เท่านั้น -->
+</body>
+
+</html>

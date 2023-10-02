@@ -1,0 +1,101 @@
+/* styles.css */
+
+/* รูปแบบของหน้าเว็บ */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f2f2f2; /* สีพื้นหลังของหน้าเว็บ */
+}
+
+/* คอนเทนเนอร์หลัก */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* หัวข้อหลัก */
+h1 {
+    font-size: 32px;
+    margin: 20px 0;
+}
+
+/* รูปแบบของช่อง input และ textarea */
+input[type="text"],
+textarea {
+    font-size: 18px;
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 10px;
+    resize: vertical; /* อนุญาตให้ปรับขนาดแนวตั้ง */
+}
+
+/* รูปแบบของปุ่ม */
+button {
+    font-size: 18px;
+    padding: 10px 20px;
+    background-color: #007bff; /* สีพื้นหลังของปุ่ม */
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+/* รูปแบบของแต่ละรายการ */
+.task {
+    border: 1px solid #ccc;
+    background-color: white;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* รูปแบบของปุ่มในแต่ละรายการ */
+.task-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+/* รูปแบบของปุ่ม */
+.task-buttons button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #007bff;
+}
+
+/* การเมื่อนำเมาส์ไปชี้ที่ปุ่ม */
+.task-buttons button:hover {
+    text-decoration: underline; /* ให้ข้อความของปุ่มเส้นใต้เวลาชี้ที่ปุ่ม */
+}
+
+/* รูปแบบของรายการที่เสร็จแล้ว */
+.task.completed {
+    background-color: #4CAF50; /* สีพื้นหลังรายการที่เสร็จแล้ว */
+    color: white;
+}
+
+/* การปรับขนาดขององค์ประกอบเมื่อหน้าจอขนาดใหญ่ */
+@media screen and (min-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 48px;
+    }
+
+    .task {
+        width: calc(50% - 20px);
+        margin-right: 20px;
+        margin-bottom: 20px;
+    }
+}
+
+footer {
+    text-align: right;
+}
